@@ -1,0 +1,335 @@
+{
+ "result": {
+  "task_id": "09-split-name",
+  "harness": "engineered",
+  "repeat": 1,
+  "solved": true,
+  "visible_tests_pass": true,
+  "end_reason": "finished",
+  "steps": 12,
+  "llm_calls": 12,
+  "prompt_tokens": 26629,
+  "completion_tokens": 872,
+  "peak_prompt_chars": 11117,
+  "seconds": 101.7,
+  "files_changed": [
+   "people.py",
+   "test_issue_checks.py"
+  ],
+  "verification_rejections": 0,
+  "blocked_test_edits": 0,
+  "nudges": 0,
+  "error": ""
+ },
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are a careful software engineer working in a small Python repository. Resolve the issue by changing the code.\n\nHow to work:\n1. Orient: look at the repository tree, then use `search` to find the code the issue is about. The root cause may be in a different file from the one the issue mentions.\n2. Reproduce: run the tests and read what fails.\n3. Make a checklist of every requirement in the issue, including each edge case and example it mentions. Write that checklist into your notes with `update_notes` and tick items off as you go.\n4. Fix the root cause with small, targeted changes. Keep everything that already works working.\n5. Verify: run the tests again. The existing tests do not cover every requirement, so for anything they miss, add a small test file of your own at the repository root (for example `test_issue_checks.py`) and run it.\n6. When every checklist item is handled and all tests pass, call `finish` with a one-line summary.\n\nRules:\n- Never edit the existing files in tests/. They define correct behaviour; change the code under test instead.\n- Keep public function names and signatures unless the issue says otherwise.\n- Standard library only.\n- Act through tool calls. Do not describe a change you intend to make; make it."
+  },
+  {
+   "role": "user",
+   "content": "<issue>\n`split_name()` in `people.py` raises `ValueError` for one-word names like `\"Cher\"` or `\"Madonna\"`. These are real customers. A one-word name should return the name as the first name and an empty last name: `split_name(\"Cher\") == (\"Cher\", \"\")`.\n\nWhile you're there:\n- Extra spaces anywhere should not matter: `split_name(\"  Ada   Lovelace \") == (\"Ada\", \"Lovelace\")`.\n- An empty or blank string returns `(\"\", \"\")`.\n</issue>\n\nRepository (path, size):\npeople.py  (23 lines, 779 bytes)\ntests/test_people.py  (22 lines, 594 bytes)  [read-only]\nFiles marked [read-only] cannot be changed."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_836739",
+     "function": {
+      "arguments": "{}",
+      "name": "list_files"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TLlqIRb6b+iR283cyWUWE+2//l5RiQ2Cs81i+Cxf9qrnck6UPzV38fjTpBsvYQ5T6bJ0W9w4VwRVgKRksbW6FBLC3fZBArIjuIv6MT4eXYEdmmvEmZfuGwqs="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_836739",
+   "content": "people.py  (23 lines, 779 bytes)\ntests/test_people.py  (22 lines, 594 bytes)  [read-only]"
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_1058518",
+     "function": {
+      "arguments": "{\"notes\":\"- [ ] One-word names like \\\"Cher\\\" or \\\"Madonna\\\" return (\\\"Cher\\\", \\\"\\\") instead of raising ValueError.\\n- [ ] Extra spaces anywhere should not matter: split_name(\\\"  Ada   Lovelace \\\") == (\\\"Ada\\\", \\\"Lovelace\\\").\\n- [ ] An empty or blank string returns (\\\"\\\", \\\"\\\").\"}",
+      "name": "update_notes"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0T3Bypjxie0RWLahfFP3I1a2o7DyqEmUJyFh/8Ju6ctnm7NvjkW1Ypbo3RBz4FclnHsiYai6CoA2dIuGYvWDybAsElOHA0OYz98UujTJjeXFfvPyqm9l7YEss="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1058518",
+   "content": "Notes saved."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_832330",
+     "function": {
+      "arguments": "{\"path\":\"people.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TspmEGBKkh84Mm0TUhD2PC680u4ftSsOg154luncFdOsVrO6ERg67srVPZ51E6RW3Vun6cUMKhyTzWbBTAZn63t2rorOdCGsC4y7MkPbD/FE+5fiYQaBklTc="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_832330",
+   "content": "    1  PARTICLES = {\"van\", \"von\", \"de\", \"da\", \"del\", \"der\", \"di\", \"le\", \"la\"}\n    2  \n    3  \n    4  def split_name(full):\n    5      \"\"\"Split a full name into (first, last).\n    6  \n    7      Middle names stay with the first name. Surname particles such as\n    8      'van' or 'de la' stay with the last name.\n    9      \"\"\"\n   10      parts = full.split(\" \")\n   11      last_start = len(parts) - 1\n   12      while last_start > 1 and parts[last_start - 1].lower() in PARTICLES:\n   13          last_start -= 1\n   14      first = \" \".join(parts[:last_start])\n   15      last = \" \".join(parts[last_start:])\n   16      if not first:\n   17          raise ValueError(\"need a first and last name\")\n   18      return first, last\n   19  \n   20  \n   21  def initials(full):\n   22      first, last = split_name(full)\n   23      return \"\".join(w[0].upper() for w in (first + \" \" + last).split() if w.lower() not in PARTICLES)\n[people.py: lines 1-23 of 23]"
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_1065054",
+     "function": {
+      "arguments": "{\"path\":\"tests/test_people.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0T1L/fT8KlglHyFqf6rSSPYy/o9Pwi/gNZY531TqeaIc0LrjDA7Wj791HnRetwuRDQPpWM6+/iveRyPz/b/yK3grqGZkNprv2dD7VWnIovgumX0O3Mj7zvRM0="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1065054",
+   "content": "    1  from people import initials, split_name\n    2  \n    3  \n    4  def test_simple():\n    5      assert split_name(\"Ada Lovelace\") == (\"Ada\", \"Lovelace\")\n    6  \n    7  \n    8  def test_middle_names_stay_with_first():\n    9      assert split_name(\"Mary Ann Smith\") == (\"Mary Ann\", \"Smith\")\n   10  \n   11  \n   12  def test_particles_stay_with_last():\n   13      assert split_name(\"Ludwig van Beethoven\") == (\"Ludwig\", \"van Beethoven\")\n   14      assert split_name(\"Charles de la Vallee\") == (\"Charles\", \"de la Vallee\")\n   15  \n   16  \n   17  def test_initials():\n   18      assert initials(\"Ludwig van Beethoven\") == \"LB\"\n   19  \n   20  \n   21  def test_one_word_name():\n   22      assert split_name(\"Cher\") == (\"Cher\", \"\")\n[tests/test_people.py: lines 1-22 of 22]"
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_797743",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TKw89RQkgtGkekI8B6vBH1c6Plc0E/2gW4JfBNHBPm7OJpl1vMzXaDMynVR18VgdlhPcWZrTWQM7Oyb+JdI7qLxgtWveIfPTg1dGfMMrnGGFxzTWq9xi8xss="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_797743",
+   "content": "TESTS FAILING (1 failed, 4 passed in 0.30s)\n....F                                                                    [100%]\n================================== FAILURES ===================================\n_____________________________ test_one_word_name ______________________________\ntests\\test_people.py:22: in test_one_word_name\n    assert split_name(\"Cher\") == (\"Cher\", \"\")\n           ^^^^^^^^^^^^^^^^^^\npeople.py:17: in split_name\n    raise ValueError(\"need a first and last name\")\nE   ValueError: need a first and last name\n1 failed, 4 passed in 0.30s"
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_969556",
+     "function": {
+      "arguments": "{\"notes\":\"- [/] One-word names like \\\"Cher\\\" or \\\"Madonna\\\" return (\\\"Cher\\\", \\\"\\\") instead of raising ValueError. (Tested in test_people.py)\\n- [ ] Extra spaces anywhere should not matter: split_name(\\\"  Ada   Lovelace \\\") == (\\\"Ada\\\", \\\"Lovelace\\\").\\n- [ ] An empty or blank string returns (\\\"\\\", \\\"\\\").\"}",
+      "name": "update_notes"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TznwIoAdAsqx5geZK/KA0zt4dPApXx9L58HsC8pvT8XsPUYN9INSWqyifheJyYPDSKwC3kl7w4ciqX6KUVL1cMVtXXpTHlrBOnqaVCYYF+jZk/TnAR7L49Ds="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_969556",
+   "content": "Notes saved."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_822390",
+     "function": {
+      "arguments": "{\"path\":\"people.py\",\"new_text\":\"def split_name(full):\\n    \\\"\\\"\\\"Split a full name into (first, last).\\n\\n    Middle names stay with the first name. Surname particles such as\\n    'van' or 'de la' stay with the last name.\\n    \\\"\\\"\\\"\\n    parts = full.split()\\n    if not parts:\\n        return \\\"\\\", \\\"\\\"\\n    if len(parts) == 1:\\n        return parts[0], \\\"\\\"\\n    last_start = len(parts) - 1\\n    while last_start \\u003e 1 and parts[last_start - 1].lower() in PARTICLES:\\n        last_start -= 1\\n    first = \\\" \\\".join(parts[:last_start])\\n    last = \\\" \\\".join(parts[last_start:])\\n    if not first:\\n        return \\\"\\\", \\\"\\\"\\n    return first, last\",\"old_text\":\"def split_name(full):\\n    \\\"\\\"\\\"Split a full name into (first, last).\\n\\n    Middle names stay with the first name. Surname particles such as\\n    'van' or 'de la' stay with the last name.\\n    \\\"\\\"\\\"\\n    parts = full.split(\\\" \\\")\\n    last_start = len(parts) - 1\\n    while last_start \\u003e 1 and parts[last_start - 1].lower() in PARTICLES:\\n        last_start -= 1\\n    first = \\\" \\\".join(parts[:last_start])\\n    last = \\\" \\\".join(parts[last_start:])\\n    if not first:\\n        raise ValueError(\\\"need a first and last name\\\")\\n    return first, last\"}",
+      "name": "edit_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TmtqDugDly3cl/a/VMUzsnpxHtYq8TThHbZml03CfRKnOXXj/D/Me7JmlgYl6rHQXHC0oxum8wRa2lXJl2sjrlfHNRPN+UfUtSZMDzatUUSn3TqL88WLLPy4="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_822390",
+   "content": "Edited people.py. The changed region now reads:\n    2  \n    3  \n    4  def split_name(full):\n    5      \"\"\"Split a full name into (first, last).\n    6  \n    7      Middle names stay with the first name. Surname particles such as\n    8      'van' or 'de la' stay with the last name.\n    9      \"\"\"\n   10      parts = full.split()\n   11      if not parts:\n   12          return \"\", \"\"\n   13      if len(parts) == 1:\n   14          return parts[0], \"\"\n   15      last_start = len(parts) - 1\n   16      while last_start > 1 and parts[last_start - 1].lower() in PARTICLES:\n   17          last_start -= 1\n   18      first = \" \".join(parts[:last_start])\n   19      last = \" \".join(parts[last_start:])\n   20      if not first:\n   21          return \"\", \"\"\n   22      return first, last\n   23  \n   24  "
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_793401",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0Tq1r86Bdipad/Ny3hkFF86uJLArPtuBPefFDy5HXnbfmT7/mhzhZMTirlC7W8or9ARp+33W9ORuE0k4wqfSKbzjmQTykood17zAT/3DAp2Iw3758+hIQSMpA="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_793401",
+   "content": "All tests passed (5 passed in 0.13s)."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_799950",
+     "function": {
+      "arguments": "{\"path\":\"test_issue_checks.py\",\"content\":\"from people import split_name, initials\\n\\ndef test_extra_spaces_and_blank():\\n    assert split_name(\\\"  Ada   Lovelace \\\") == (\\\"Ada\\\", \\\"Lovelace\\\")\\n    assert split_name(\\\"\\\") == (\\\"\\\", \\\"\\\")\\n    assert split_name(\\\"   \\\") == (\\\"\\\", \\\"\\\")\\n    assert initials(\\\"  Ada   Lovelace \\\") == \\\"AL\\\"\\n    assert initials(\\\"   \\\") == \\\"\\\"\\n\"}",
+      "name": "create_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0Tx0J9RU0RKAMAgI4D79kqSFFQRZ7MwZSEmiXdDyUVkMhXdlhJxUmbP6Pg1yIJ/ZGvwYN72kl9SWa0DTB7MB7I/M9KblEzhqXiFazKdRyPiWzUEjkUU2KkuyU="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_799950",
+   "content": "Created test_issue_checks.py (9 lines)."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_836977",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0Tl0proxf0QCzu4nmkcCxCchrcENHhVbdYGcNy52mUcINqVJ26FS5nHS9ph0ZqyWN0uFk+M9jerVlS22Xvr0utf5j8rv5+ALCy8+TU7rnh+86MNX7v4RAGxQ0="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_836977",
+   "content": "All tests passed (6 passed in 0.12s)."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_895948",
+     "function": {
+      "arguments": "{\"notes\":\"- [x] One-word names like \\\"Cher\\\" or \\\"Madonna\\\" return (\\\"Cher\\\", \\\"\\\") instead of raising ValueError.\\n- [x] Extra spaces anywhere should not matter: split_name(\\\"  Ada   Lovelace \\\") == (\\\"Ada\\\", \\\"Lovelace\\\").\\n- [x] An empty or blank string returns (\\\"\\\", \\\"\\\").\"}",
+      "name": "update_notes"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TpyUM52Lfqfp4+IqG1rxNV3EAdxyAvLmLelbgDfTEkiI12OKdkAKKP4mDsQBzLBEayasYQc6hsZ9ZAd7EDJ1AndYY60hb1lBA/7ZXwhs9wlzAeV08QHYhteU="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_895948",
+   "content": "Notes saved."
+  },
+  {
+   "role": "assistant",
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call_885687",
+     "function": {
+      "arguments": "{\"summary\":\"Updated split_name() in people.py to handle one-word names, extra whitespace, and empty or blank strings correctly.\"}",
+      "name": "finish"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EmAKXgFpFH0TdQwrWnH/2CEn2k3Zcge6CSSouivwmIddI8ShFEzO0EsKJGbT1wvGlamocRz+int7vKn5iNR613ISJH1wrtxbFH2IZxKlAcOKIAEsHDBBIc48Hzmf5YWoSO4="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_885687",
+   "content": "Accepted: all tests pass."
+  }
+ ],
+ "grading": ".........                                                                [100%]\n9 passed in 0.08s"
+}

@@ -1,0 +1,1 @@
+{"title": "Config merge is shallow and mutates input", "stresses": ["verification"]}

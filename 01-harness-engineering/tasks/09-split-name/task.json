@@ -1,0 +1,1 @@
+{"title": "split_name crashes on one-word names (regression trap)", "stresses": ["verification"]}

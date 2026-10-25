@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Harness Results</title>
+<style>
+:root { --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#8a8984; --grid:#e6e5e1; --hi:#2a78d6; --base:#b9b8b2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#8f8e88; --grid:#33322f; --hi:#3987e5; --base:#5f5e59; } }
+:root[data-theme="dark"] { --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#8f8e88; --grid:#33322f; --hi:#3987e5; --base:#5f5e59; }
+body { background:var(--surface); color:var(--ink); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; margin:0; padding:32px 16px; }
+main { max-width:760px; margin:0 auto; }
+h1 { font-size:22px; margin:0 0 4px; } .sub { color:var(--ink-2); margin:0 0 28px; }
+figure { margin:0 0 36px; } figcaption { font-weight:600; margin-bottom:8px; }
+svg { width:100%; height:auto; }
+.grid { stroke:var(--grid); stroke-width:1; } .tick { fill:var(--muted); font-size:11px; }
+.lbl { fill:var(--ink-2); font-size:13px; } .val { fill:var(--ink); font-size:13px; font-weight:600; }
+.bar { fill:var(--base); } .bar.hi { fill:var(--hi); }
+table { border-collapse:collapse; width:100%; font-size:13px; }
+th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--grid); } th { color:var(--ink-2); font-weight:600; }
+details { margin-top:28px; } pre { white-space:pre-wrap; font-size:12px; color:var(--ink-2); }
+</style></head><body><main>
+<h1>Same model, different harness</h1>
+<p class="sub">gemma-4-26b-a4b-it · 16 tasks · 1 run(s) each · temperature 0</p>
+<figure><figcaption>Tasks solved: same model (gemma-4-26b-a4b-it), two harnesses</figcaption><svg viewBox="0 0 720 108" role="img" aria-label="Tasks solved: same model (gemma-4-26b-a4b-it), two harnesses"><line x1="210.0" x2="210.0" y1="4" y2="82" class="grid"/><text x="210.0" y="100" class="tick" text-anchor="middle">0%</text><line x1="315.0" x2="315.0" y1="4" y2="82" class="grid"/><text x="315.0" y="100" class="tick" text-anchor="middle">25%</text><line x1="420.0" x2="420.0" y1="4" y2="82" class="grid"/><text x="420.0" y="100" class="tick" text-anchor="middle">50%</text><line x1="525.0" x2="525.0" y1="4" y2="82" class="grid"/><text x="525.0" y="100" class="tick" text-anchor="middle">75%</text><line x1="630.0" x2="630.0" y1="4" y2="82" class="grid"/><text x="630.0" y="100" class="tick" text-anchor="middle">100%</text><g><title>naive: 14/16 solved, 9.7 steps, 36,548 tokens avg</title><text x="200" y="23" class="lbl" text-anchor="end">naive</text><path class="bar" d="M210,11 h363.5 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-363.5 z"/><text x="585.5" y="24" class="val">14/16</text></g><g><title>engineered: 16/16 solved, 14.9 steps, 102,222 tokens avg</title><text x="200" y="57" class="lbl" text-anchor="end">engineered</text><path class="bar hi" d="M210,45 h416.0 a4,4 0 0 1 4,4 v10 a4,4 0 0 1 -4,4 h-416.0 z"/><text x="638.0" y="58" class="val">16/16</text></g></svg></figure>
+<table><thead><tr><th>Harness</th><th>Solved</th><th>Rate</th><th>Avg steps</th><th>Median tokens</th><th>Mean tokens</th><th>How runs ended</th></tr></thead>
+<tbody><tr><td>naive</td><td><b>14/16</b></td><td>88%</td><td>9.7</td><td>36,451</td><td>36,548</td><td>finished 16</td></tr><tr><td>engineered</td><td><b>16/16</b></td><td>100%</td><td>14.9</td><td>70,710</td><td>102,222</td><td>finished 15, max_steps 1</td></tr></tbody></table>
+<details><summary>Full results (markdown)</summary><pre># Results: gemma-4-26b-a4b-it
+
+16 tasks, 1 run(s) per task per harness, temperature 0.
+
+Excluded because at least one harness could not complete them due to API errors or rate limits (not counted for any harness): 07-big-file-temperature, 08-log-parser, 17-report-percent, 19-markdown-table.
+
+| Harness | Solved | Avg steps | Median tokens / task | Mean tokens / task | Peak context | How runs ended |
+|---|---|---|---|---|---|---|
+| naive | **14/16** (88%) | 9.7 | 36,451 | 36,548 | 36 KB | finished 16 |
+| engineered | **16/16** (100%) | 14.9 | 70,710 | 102,222 | 70 KB | finished 15, max_steps 1 |
+
+## Per task
+
+| Task | Stresses | naive | engineered |
+|---|---|---|---|
+| 01-slugify | instructions, verification | ✅ 1/1 | ✅ 1/1 |
+| 02-parse-duration | verification | ✅ 1/1 | ✅ 1/1 |
+| 03-invoice-rounding | instructions | ✅ 1/1 | ✅ 1/1 |
+| 04-lru-cache | verification | ✅ 1/1 | ✅ 1/1 |
+| 05-date-range | verification | ✅ 1/1 | ✅ 1/1 |
+| 06-bulk-discount | context, tools | ✅ 1/1 | ✅ 1/1 |
+| 09-split-name | verification | ✅ 1/1 | ✅ 1/1 |
+| 10-csv-export | memory, instructions | ✅ 1/1 | ✅ 1/1 |
+| 11-retry-decorator | memory, verification | ✅ 1/1 | ✅ 1/1 |
+| 12-roman-numerals | verification | ✅ 1/1 | ✅ 1/1 |
+| 13-version-compare | instructions | ❌ 0/1 | ✅ 1/1 |
+| 14-config-merge | verification | ✅ 1/1 | ✅ 1/1 |
+| 15-word-wrap | verification | ❌ 0/1 | ✅ 1/1 |
+| 16-rate-limiter | verification | ✅ 1/1 | ✅ 1/1 |
+| 18-inventory-batch | instructions | ✅ 1/1 | ✅ 1/1 |
+| 20-rename-across-files | loop, memory, tools | ✅ 1/1 | ✅ 1/1 |
+</pre></details>
+</main></body></html>

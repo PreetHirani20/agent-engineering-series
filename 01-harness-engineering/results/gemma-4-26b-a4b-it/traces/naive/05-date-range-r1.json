@@ -1,0 +1,240 @@
+{
+ "result": {
+  "task_id": "05-date-range",
+  "harness": "naive",
+  "repeat": 1,
+  "solved": true,
+  "visible_tests_pass": true,
+  "end_reason": "finished",
+  "steps": 9,
+  "llm_calls": 9,
+  "prompt_tokens": 22968,
+  "completion_tokens": 2693,
+  "peak_prompt_chars": 18387,
+  "seconds": 175.3,
+  "files_changed": [
+   "tests/test_dates.py",
+   "dates.py"
+  ],
+  "verification_rejections": 0,
+  "blocked_test_edits": 0,
+  "nudges": 0,
+  "error": ""
+ },
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are a helpful coding assistant with tools for working with a code repository. Solve the user's issue."
+  },
+  {
+   "role": "user",
+   "content": "`days_between()` in `dates.py` says it is inclusive, but it leaves out the end date: `days_between(date(2024, 1, 30), date(2024, 2, 2))` gives 3 dates instead of 4.\n\nAlso:\n- `business_days(start, end, holidays=())` ignores `holidays`. Dates in `holidays` (any iterable of `date`) must be excluded, as well as weekends.\n- If `start` is after `end`, both functions must raise `ValueError` (right now they return an empty list).\n- `start == end` is a one-day range."
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I understand the issues.\n1. `days_between(start, end)` should be inclusive of both `start` and `end`.\n2. `business_days(start, end, holidays=())` should exclude `holidays`.\n3. Both `days_between` and `business_days` should raise `ValueError` if `start > end`.\n4. `start == end` should be treated as a one-day range.\n\nLet's start by exploring the codebase to locate `dates.py` and understand the current implementation.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_519165",
+     "function": {
+      "arguments": "{}",
+      "name": "list_files"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_519165",
+   "content": "dates.py\ntests/test_dates.py"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I see `dates.py` and `tests/test_dates.py`.\nLet's examine `dates.py` first.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_619140",
+     "function": {
+      "arguments": "{\"path\":\"dates.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_619140",
+   "content": "from datetime import date, timedelta\n\n\ndef days_between(start, end):\n    \"\"\"Every date from start to end, inclusive.\"\"\"\n    out = []\n    d = start\n    while d < end:\n        out.append(d)\n        d += timedelta(days=1)\n    return out\n\n\ndef business_days(start, end, holidays=()):\n    \"\"\"Weekdays from start to end, inclusive, skipping holidays.\"\"\"\n    return [d for d in days_between(start, end) if d.weekday() < 5]\n\n\ndef next_monday(d):\n    return d + timedelta(days=(7 - d.weekday()) % 7 or 7)\n"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I see the implementation.\n\n`days_between(start, end)`:\n```python\ndef days_between(start, end):\n    \"\"\"Every date from start to end, inclusive.\"\"\"\n    out = []\n    d = start\n    while d < end:\n        out.append(d)\n        d += timedelta(days=1)\n    return out\n```\nIt uses `while d < end:`, which means it excludes `end`. It should be `while d <= end:`.\n\n`business_days(start, end, holidays=())`:\n```python\ndef business_days(start, end, holidays=()):\n    \"\"\"Weekdays from start to end, inclusive, skipping holidays.\"\"\"\n    return [d for d in days_between(start, end) if d.weekday() < 5]\n```\nIt calls `days_between(start, end)`, which currently excludes `end`. Also, it doesn't use the `holidays` argument.\n\nNow let's look at `tests/test_dates.py` to see if there are existing tests and to create new ones to reproduce the issues.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1181919",
+     "function": {
+      "arguments": "{\"path\":\"tests/test_dates.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1181919",
+   "content": "from datetime import date\n\nfrom dates import days_between, next_monday\n\n\ndef test_inclusive_across_month():\n    days = days_between(date(2024, 1, 30), date(2024, 2, 2))\n    assert days == [date(2024, 1, 30), date(2024, 1, 31), date(2024, 2, 1), date(2024, 2, 2)]\n\n\ndef test_next_monday():\n    assert next_monday(date(2024, 3, 6)) == date(2024, 3, 11)\n    assert next_monday(date(2024, 3, 11)) == date(2024, 3, 18)\n"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>The `test_inclusive_across_month` test already exists and it's failing.\n\nLet's run the tests to confirm.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1766372",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1766372",
+   "content": "============================= test session starts =============================\nplatform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- C:\\Users\\<user>\\OneDrive\\Desktop\\PROJECTS\\agent-engineering-series\\01-harness-engineering\\.venv\\Scripts\\python.exe\nrootdir: C:\\Users\\<user>\\AppData\\Local\\Temp\\harness-engineering-work\\gemma-4-26b-a4b-it\\naive\\05-date-range-r1\nplugins: anyio-4.15.1\ncollecting ... collected 2 items\n\ntests/test_dates.py::test_inclusive_across_month FAILED                  [ 50%]\ntests/test_dates.py::test_next_monday PASSED                             [100%]\n\n================================== FAILURES ===================================\n_________________________ test_inclusive_across_month _________________________\n\n    def test_inclusive_across_month():\n        days = days_between(date(2024, 1, 30), date(2024, 2, 2))\n>       assert days == [date(2024, 1, 30), date(2024, 1, 31), date(2024, 2, 1), date(2024, 2, 2)]\nE       AssertionError: assert [datetime.dat...e(2024, 2, 1)] == [datetime.dat...e(2024, 2, 2)]\nE         \nE         Right contains one more item: datetime.date(2024, 2, 2)\nE         \nE         Full diff:\nE           [\nE               datetime.date(2024, 1, 30),\nE               datetime.date(2024, 1, 31),...\nE         \nE         ...Full output truncated (3 lines hidden), use '-vv' to show\n\ntests\\test_dates.py:8: AssertionError\n========================= 1 failed, 1 passed in 0.14s ========================="
+  },
+  {
+   "role": "assistant",
+   "content": "<thought\nOkay, the test failed as expected.\n\nNow I'll create a more comprehensive test suite in `tests/test_dates.py` to cover all the requirements.\n\nRequirements:\n1. `days_between(start, end)` is inclusive.\n2. `business_days(start, end, holidays=())` excludes `holidays` and weekends.\n3. `days_between` and `business_days` raise `ValueError` if `start > end`.\n4. `start == end` is a one-day range.\n\nI'll add these tests to `tests/test_dates.py`.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1257963",
+     "function": {
+      "arguments": "{\"path\":\"tests/test_dates.py\",\"content\":\"from datetime import date\\n\\nfrom dates import days_between, business_days, next_monday\\n\\n\\ndef test_inclusive_across_month():\\n    days = days_between(date(2024, 1, 30), date(2024, 2, 2))\\n    assert days == [date(2024, 1, 30), date(2024, 1, 31), date(2024, 2, 1), date(2024, 2, 2)]\\n\\n\\ndef test_next_monday():\\n    assert next_monday(date(2024, 3, 6)) == date(2024, 3, 11)\\n    assert next_monday(date(2024, 3, 11)) == date(2024, 3, 18)\\n\\ndef test_days_between_start_equals_end():\\n    assert days_between(date(2024, 1, 1), date(2024, 1, 1)) == [date(2024, 1, 1)]\\n\\ndef test_days_between_start_after_end():\\n    import pytest\\n    with pytest.raises(ValueError):\\n        days_between(date(2024, 1, 2), date(2024, 1, 1))\\n\\ndef test_business_days_basic():\\n    # 2024-01-01 is Monday\\n    # 2024-01-05 is Friday\\n    # 2024-01-06 is Saturday\\n    # 2024-01-07 is Sunday\\n    # 2024-01-08 is Monday\\n    assert business_days(date(2024, 1, 1), date(2024, 1, 5)) == [\\n        date(2024, 1, 1), date(2024, 1, 2), date(2024, 1, 3), date(2024, 1, 4), date(2024, 1, 5)\\n    ]\\n    assert business_days(date(2024, 1, 5), date(2024, 1, 8)) == [\\n        date(2024, 1, 5), date(2024, 1, 8)\\n    ]\\n\\ndef test_business_days_with_holidays():\\n    # 2024-01-01 is Monday\\n    # 2024-01-02 is Tuesday\\n    holidays = [date(2024, 1, 1)]\\n    assert business_days(date(2024, 1, 1), date(2024, 1, 2), holidays=holidays) == [\\n        date(2024, 1, 2)\\n    ]\\n\\ndef test_business_days_start_after_end():\\n    import pytest\\n    with pytest.raises(ValueError):\\n        business_days(date(2024, 1, 2), date(2024, 1, 1))\\n\\ndef test_business_days_start_equals_end():\\n    # Monday\\n    assert business_days(date(2024, 1, 1), date(2024, 1, 1)) == [date(2024, 1, 1)]\\n    # Saturday\\n    assert business_days(date(2024, 1, 6), date(2024, 1, 6)) == []\\n    # Holiday on Monday\\n    assert business_days(date(2024, 1, 1), date(2024, 1, 1), holidays=[date(2024, 1, 1)]) == []\\n\"}",
+      "name": "write_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1257963",
+   "content": "OK"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Now let's run the tests to see how many are failing.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1224686",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1224686",
+   "content": "============================= test session starts =============================\nplatform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- C:\\Users\\<user>\\OneDrive\\Desktop\\PROJECTS\\agent-engineering-series\\01-harness-engineering\\.venv\\Scripts\\python.exe\nrootdir: C:\\Users\\<user>\\AppData\\Local\\Temp\\harness-engineering-work\\gemma-4-26b-a4b-it\\naive\\05-date-range-r1\nplugins: anyio-4.15.1\ncollecting ... collected 8 items\n\ntests/test_dates.py::test_inclusive_across_month FAILED                  [ 12%]\ntests/test_dates.py::test_next_monday PASSED                             [ 25%]\ntests/test_dates.py::test_days_between_start_equals_end FAILED           [ 37%]\ntests/test_dates.py::test_days_between_start_after_end FAILED            [ 50%]\ntests/test_dates.py::test_business_days_basic FAILED                     [ 62%]\ntests/test_dates.py::test_business_days_with_holidays FAILED             [ 75%]\ntests/test_dates.py::test_business_days_start_after_end FAILED           [ 87%]\ntests/test_dates.py::test_business_days_start_equals_end FAILED          [100%]\n\n================================== FAILURES ===================================\n_________________________ test_inclusive_across_month _________________________\n\n    def test_inclusive_across_month():\n        days = days_between(date(2024, 1, 30), date(2024, 2, 2))\n>       assert days == [date(2024, 1, 30), date(2024, 1, 31), date(2024, 2, 1), date(2024, 2, 2)]\nE       AssertionError: assert [datetime.dat...e(2024, 2, 1)] == [datetime.dat...e(2024, 2, 2)]\nE         \nE         Right contains one more item: datetime.date(2024, 2, 2)\nE         \nE         Full diff:\nE           [\nE               datetime.date(2024, 1, 30),\nE               datetime.date(2024, 1, 31),...\nE         \nE         ...Full output truncated (3 lines hidden), use '-vv' to show\n\ntests\\test_dates.py:8: AssertionError\n_____________________ test_days_between_start_equals_end ______________________\n\n    def test_days_between_start_equals_end():\n>       assert days_between(date(2024, 1, 1), date(2024, 1, 1)) == [date(2024, 1, 1)]\nE       assert [] == [datetime.date(2024, 1, 1)]\nE         \nE         Right contains one more item: datetime.date(2024, 1, 1)\nE         \nE         Full diff:\nE         + []\nE         - [\nE         -     datetime.date(2024, 1, 1),\nE         - ]\n\ntests\\test_dates.py:16: AssertionError\n______________________ test_days_between_start_after_end ______________________\n\n    def test_days_between_start_after_end():\n        import pytest\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE ValueError\n\ntests\\test_dates.py:20: Failed\n__________________________ test_business_days_basic ___________________________\n\n    def test_business_days_basic():\n        # 2024-01-01 is Monday\n        # 2024-01-05 is Friday\n        # 2024-01-06 is Saturday\n        # 2024-01-07 is Sunday\n        # 2024-01-08 is Monday\n>       assert business_days(date(2024, 1, 1), date(2024, 1, 5)) == [\n            date(2024, 1, 1), date(2024, 1, 2), date(2024, 1, 3), date(2024, 1, 4), date(2024, 1, 5)\n        ]\nE       AssertionError: assert [datetime.dat...e(2024, 1, 4)] == [datetime.dat...e(2024, 1, 5)]\nE         \nE         Right contains one more item: datetime.date(2024, 1, 5)\nE         \nE         Full diff:\nE           [\nE               datetime.date(2024, 1, 1),\nE               datetime.date(2024, 1, 2),...\nE         \nE         ...Full output truncated (4 lines hidden), use '-vv' to show\n\ntests\\test_dates.py:29: AssertionError\n______________________ test_business_days_with_holidays _______________________\n\n    def test_business_days_with_holidays():\n        # 2024-01-01 is Monday\n        # 2024-01-02 is Tuesday\n        holidays = [date(2024, 1, 1)]\n>       assert business_days(date(2024, 1, 1), date(2024, 1, 2), holidays=holidays) == [\n            date(2024, 1, 2)\n        ]\nE       AssertionError: assert [datetime.date(2024, 1, 1)] == [datetime.date(2024, 1, 2)]\nE         \nE         At index 0 diff: datetime.date(2024, 1, 1) != datetime.date(2024, 1, 2)\nE         \nE         Full diff:\nE           [\nE         -     datetime.date(2024, 1, 2),\nE         ?                            ^...\nE         \nE         ...Full output truncated (3 lines hidden), use '-vv' to show\n\ntests\\test_dates.py:40: AssertionError\n_____________________ test_business_days_start_after_end ______________________\n\n    def test_business_days_start_after_end():\n        import pytest\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE ValueError\n\ntests\\test_dates.py:46: Failed\n_____________________ test_business_days_start_equals_end _____________________\n\n    def test_business_days_start_equals_end():\n        # Monday\n>       assert business_days(date(2024, 1, 1), date(2024, 1, 1)) == [date(2024, 1, 1)]\nE       assert [] == [datetime.date(2024, 1, 1)]\nE         \nE         Right contains one more item: datetime.date(2024, 1, 1)\nE         \nE         Full diff:\nE         + []\nE         - [\nE         -     datetime.date(2024, 1, 1),\nE         - ]\n\ntests\\test_dates.py:51: AssertionError\n========================= 7 failed, 1 passed in 0.21s ========================="
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, almost all tests failed, which is good because it means I've identified the issues.\n\nLet's fix `days_between` first.\n\n```python\ndef days_between(start, end):\n    \"\"\"Every date from start to end, inclusive.\"\"\"\n    if start > end:\n        raise ValueError(\"start must be before or equal to end\")\n    out = []\n    d = start\n    while d <= end:\n        out.append(d)\n        d += timedelta(days=1)\n    return out\n```\n\nAnd `business_days`:\n\n```python\ndef business_days(start, end, holidays=()):\n    \"\"\"Weekdays from start to end, inclusive, skipping holidays.\"\"\"\n    if start > end:\n        raise ValueError(\"start must be before or equal to end\")\n    return [d for d in days_between(start, end) if d.weekday() < 5 and d not in holidays]\n```\n\nWait, `holidays` is an iterable. If it's a large list, `d not in holidays` might be slow. But for typical usage it should be fine.\n\nLet's apply these changes to `dates.py`.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_872424",
+     "function": {
+      "arguments": "{\"path\":\"dates.py\",\"content\":\"from datetime import date, timedelta\\n\\n\\ndef days_between(start, end):\\n    \\\"\\\"\\\"Every date from start to end, inclusive.\\\"\\\"\\\"\\n    if start \\u003e end:\\n        raise ValueError(\\\"start must be before or equal to end\\\")\\n    out = []\\n    d = start\\n    while d \\u003c= end:\\n        out.append(d)\\n        d += timedelta(days=1)\\n    return out\\n\\n\\ndef business_days(start, end, holidays=()):\\n    \\\"\\\"\\\"Weekdays from start to end, inclusive, skipping holidays.\\\"\\\"\\\"\\n    if start \\u003e end:\\n        raise ValueError(\\\"start must be before or equal to end\\\")\\n    return [d for d in days_between(start, end) if d.weekday() \\u003c 5 and d not in holidays]\\n\\n\\ndef next_monday(d):\\n    return d + timedelta(days=(7 - d.weekday()) % 7 or 7)\\n\"}",
+      "name": "write_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_872424",
+   "content": "OK"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Now let's run the tests again.\n</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1666617",
+     "function": {
+      "arguments": "{}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1666617",
+   "content": "============================= test session starts =============================\nplatform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- C:\\Users\\<user>\\OneDrive\\Desktop\\PROJECTS\\agent-engineering-series\\01-harness-engineering\\.venv\\Scripts\\python.exe\nrootdir: C:\\Users\\<user>\\AppData\\Local\\Temp\\harness-engineering-work\\gemma-4-26b-a4b-it\\naive\\05-date-range-r1\nplugins: anyio-4.15.1\ncollecting ... collected 8 items\n\ntests/test_dates.py::test_inclusive_across_month PASSED                  [ 12%]\ntests/test_dates.py::test_next_monday PASSED                             [ 25%]\ntests/test_dates.py::test_days_between_start_equals_end PASSED           [ 37%]\ntests/test_dates.py::test_days_between_start_after_end PASSED            [ 50%]\ntests/test_dates.py::test_business_days_basic PASSED                     [ 62%]\ntests/test_dates.py::test_business_days_with_holidays PASSED             [ 75%]\ntests/test_dates.py::test_business_days_start_after_end PASSED           [ 87%]\ntests/test_dates.py::test_business_days_start_equals_end PASSED          [100%]\n\n============================== 8 passed in 0.05s =============================="
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>All tests passed! I have addressed all the requirements.\n1. `days_between` is now inclusive.\n2. `business_days` now excludes `holidays`.\n3. Both functions raise `ValueError` if `start > end`.\n4. `start == end` is correctly handled as a one-day range (or zero-day if it's a weekend/holiday for `business_days`).\n\nWait, let me double check `test_business_days_start_equals_end`.\n\n```python\ndef test_business_days_start_equals_end():\n    # Monday\n    assert business_days(date(2024, 1, 1), date(2024, 1, 1)) == [date(2024, 1, 1)]\n    # Saturday\n    assert business_days(date(2024, 1, 6), date(2024, 1, 6)) == []\n    # Holiday on Monday\n    assert business_days(date(2024, 1, 1), date(2024, 1, 1), holidays=[date(2024, 1, 1)]) == []\n```\n\nIf `start == end`, `days_between` returns `[start]`.\nIf `start` is a weekday and not a holiday, `business_days` returns `[start]`.\nIf `start` is a weekend or a holiday, `business_days` returns `[]`.\nThis seems correct according to the requirements.\n\nThe requirement \"start == end is a one-day range\" was applied to `days_between` (which is now inclusive). For `business_days`, it's a one-day range, but if that day is not a business day, it should be empty.\n\nLet's review the requirements again.\n- `days_between()` in `dates.py` says it is inclusive, but it leaves out the end date: `days_between(date(2024, 1, 30), date(2024, 2, 2))` gives 3 dates instead of 4. -> FIXED.\n- `business_days(start, end, holidays=())` ignores `holidays`. Dates in `holidays` (any iterable of `date`) must be excluded, as well as weekends. -> FIXED.\n- If `start` is after `end`, both functions must raise `ValueError` (right now they return an empty list). -> FIXED.\n- `start == end` is a one-day range. -> FIXED.\n\nI'm confident with the solution.\n</thought>I have fixed the issues in `dates.py`.\n\n1.  **`days_between(start, end)`**: Changed the loop condition from `while d < end:` to `while d <= end:` to make it inclusive of the end date. Added a check to raise `ValueError` if `start > end`.\n2.  **`business_days(start, end, holidays=())`**: Updated the list comprehension to exclude dates present in the `holidays` iterable. Added a check to raise `ValueError` if `start > end`.\n3.  **`start == end`**: Both functions now correctly handle the case where `start == end` as a one-day range (subject to business day rules for `business_days`).\n\nAll tests in `tests/test_dates.py` are now passing.\n\n```python\nfrom datetime import date, timedelta\n\n\ndef days_between(start, end):\n    \"\"\"Every date from start to end, inclusive.\"\"\"\n    if start > end:\n        raise ValueError(\"start must be before or equal to end\")\n    out = []\n    d = start\n    while d <= end:\n        out.append(d)\n        d += timedelta(days=1)\n    return out\n\n\ndef business_days(start, end, holidays=()):\n    \"\"\"Weekdays from start to end, inclusive, skipping holidays.\"\"\"\n    if start > end:\n        raise ValueError(\"start must be before or equal to end\")\n    return [d for d in days_between(start, end) if d.weekday() < 5 and d not in holidays]\n\n\ndef next_monday(d):\n    return d + timedelta(days=(7 - d.weekday()) % 7 or 7)\n```",
+   "_finish_reason": "stop"
+  }
+ ],
+ "grading": ".......                                                                  [100%]\n7 passed in 0.02s"
+}

@@ -1,0 +1,309 @@
+{
+ "result": {
+  "task_id": "17-report-percent",
+  "harness": "engineered",
+  "repeat": 1,
+  "solved": false,
+  "visible_tests_pass": false,
+  "end_reason": "api_error",
+  "steps": 12,
+  "llm_calls": 11,
+  "prompt_tokens": 33212,
+  "completion_tokens": 573,
+  "peak_prompt_chars": 17747,
+  "seconds": 4681.9,
+  "files_changed": [
+   "repro.py"
+  ],
+  "verification_rejections": 0,
+  "blocked_test_edits": 0,
+  "nudges": 0,
+  "error": "RuntimeError: LLM call failed after 8 attempts"
+ },
+ "messages": [
+  {
+   "role": "system",
+   "content": "You are a careful software engineer working in a small Python repository. Resolve the issue by changing the code.\n\nHow to work:\n1. Orient: look at the repository tree, then use `search` to find the code the issue is about. The root cause may be in a different file from the one the issue mentions.\n2. Reproduce: run the tests and read what fails.\n3. Make a checklist of every requirement in the issue, including each edge case and example it mentions. Write that checklist into your notes with `update_notes` and tick items off as you go.\n4. Fix the root cause with small, targeted changes. Keep everything that already works working.\n5. Verify: run the tests again. The existing tests do not cover every requirement, so for anything they miss, add a small test file of your own at the repository root (for example `test_issue_checks.py`) and run it.\n6. When every checklist item is handled and all tests pass, call `finish` with a one-line summary.\n\nRules:\n- Never edit the existing files in tests/. They define correct behaviour; change the code under test instead.\n- Keep public function names and signatures unless the issue says otherwise.\n- Standard library only.\n- Act through tool calls. Do not describe a change you intend to make; make it."
+  },
+  {
+   "role": "user",
+   "content": "<issue>\nThe weekly report shows `Conversion: 4500.0%` for a week with 450 signups and 1,000 visits. It should say `Conversion: 45.0%`.\n\nAlso, for a week with no visits at all, `weekly_report()` crashes with `ZeroDivisionError`. It should show `0.0%` for both the conversion rate and the bounce rate.\n\nOther parts of the analytics package (the dashboard, the formatting helpers) are correct today and must keep working.\n</issue>\n\nRepository (path, size):\nanalytics/__init__.py  (1 lines, 81 bytes)\nanalytics/dashboard.py  (6 lines, 205 bytes)\nanalytics/formatting.py  (12 lines, 318 bytes)\nanalytics/loader.py  (7 lines, 161 bytes)\nanalytics/metrics.py  (12 lines, 358 bytes)\nanalytics/periods.py  (11 lines, 273 bytes)\nanalytics/report.py  (13 lines, 626 bytes)\ntests/test_dashboard.py  (5 lines, 178 bytes)  [read-only]\ntests/test_formatting.py  (11 lines, 317 bytes)  [read-only]\ntests/test_report.py  (7 lines, 236 bytes)  [read-only]\nFiles marked [read-only] cannot be changed."
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I understand the issue.\nThere are two main problems in the `weekly_report()` function:\n1. The conversion rate is being calculated incorrectly (it's 10x too high in the example: 450 signups and 1,000 visits should be 45.0%, but it shows 4500.0%).\n2. It crashes with `ZeroDivisionError` when there are no visits. It should show `0.0%` for both conversion rate and bounce rate in this case.\n\nI need to investigate `analytics/report.py` to find the `weekly_report()` function and fix these issues.\n\nFirst, I'll start by exploring the repository to get an overview of the code.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1331354",
+     "function": {
+      "arguments": "{\"directory\":\".\"}",
+      "name": "list_files"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1331354",
+   "content": "analytics/__init__.py  (1 lines, 81 bytes)\nanalytics/dashboard.py  (6 lines, 205 bytes)\nanalytics/formatting.py  (12 lines, 318 bytes)\nanalytics/loader.py  (7 lines, 161 bytes)\nanalytics/metrics.py  (12 lines, 358 bytes)\nanalytics/periods.py  (11 lines, 273 bytes)\nanalytics/report.py  (13 lines, 626 bytes)\ntests/test_dashboard.py  (5 lines, 178 bytes)  [read-only]\ntests/test_formatting.py  (11 lines, 317 bytes)  [read-only]\ntests/test_report.py  (7 lines, 236 bytes)  [read-only]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I'll search for `weekly_report` in the repository to find its definition.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1146653",
+     "function": {
+      "arguments": "{\"pattern\":\"weekly_report\"}",
+      "name": "search"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1146653",
+   "content": "analytics/report.py:5: def weekly_report(stats):\ntests/test_report.py:1: from analytics.report import weekly_report\ntests/test_report.py:7: assert \"Conversion: 45.0%\" in weekly_report(WEEK)"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, `weekly_report` is defined in `analytics/report.py`.\n\nNow I'll create a reproduction script to confirm the issues.\nThe issue mentions:\n1. 450 signups and 1,000 visits -> `Conversion: 45.0%` (currently `4500.0%`)\n2. 0 visits -> `Conversion: 0.0%` and `Bounce Rate: 0.0%` (currently `ZeroDivisionError`)\n\nI need to see what `stats` looks like. I'll check `tests/test_report.py` to see how it's used.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1306379",
+     "function": {
+      "arguments": "{\"path\":\"tests/test_report.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1306379",
+   "content": "    1  from analytics.report import weekly_report\n    2  \n    3  WEEK = {\"visits\": 1000, \"signups\": 450, \"bounces\": 300, \"session_seconds\": 125000, \"sessions\": 1000}\n    4  \n    5  \n    6  def test_conversion_line():\n    7      assert \"Conversion: 45.0%\" in weekly_report(WEEK)\n[tests/test_report.py: lines 1-7 of 7]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, the `WEEK` dictionary in `tests/test_report.py` has:\n`{\"visits\": 1000, \"signups\": 450, \"bounces\": 300, \"session_seconds\": 125000, \"sessions\": 1000}`\n\nWait, the issue says:\n\"The weekly report shows `Conversion: 4500.0%` for a week with 450 signups and 1,000 visits. It should say `Conversion: 45.0%`.\"\n\nIf I use `WEEK` from the test, it should fail if the issue is present.\n\nLet's look at `analytics/report.py` to see the implementation.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1414760",
+     "function": {
+      "arguments": "{\"path\":\"analytics/report.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1414760",
+   "content": "    1  from .formatting import format_count, format_duration, format_pct\n    2  from .metrics import avg_session, bounce_rate, conversion_rate\n    3  \n    4  \n    5  def weekly_report(stats):\n    6      \"\"\"stats: dict with visits, signups, bounces, session_seconds, sessions.\"\"\"\n    7      lines = [\n    8          f\"Visits: {format_count(stats['visits'])}\",\n    9          f\"Conversion: {format_pct(conversion_rate(stats['signups'], stats['visits']))}\",\n   10          f\"Bounce rate: {format_pct(bounce_rate(stats['bounces'], stats['visits']))}\",\n   11          f\"Avg session: {format_duration(avg_session(stats['session_seconds'], stats['sessions']))}\",\n   12      ]\n   13      return \"\\n\".join(lines)\n[analytics/report.py: lines 1-13 of 13]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>The `weekly_report` function uses `conversion_rate` and `bounce_rate` from `analytics/metrics.py`.\nI'll examine `analytics/metrics.py`.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1652324",
+     "function": {
+      "arguments": "{\"path\":\"analytics/metrics.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1652324",
+   "content": "    1  def conversion_rate(signups, visits):\n    2      \"\"\"Share of visits that signed up.\"\"\"\n    3      return signups / visits * 100\n    4  \n    5  \n    6  def bounce_rate(bounces, visits):\n    7      \"\"\"Share of visits that left after one page, as a fraction.\"\"\"\n    8      return bounces / visits\n    9  \n   10  \n   11  def avg_session(total_seconds, sessions):\n   12      return total_seconds / sessions if sessions else 0.0\n[analytics/metrics.py: lines 1-12 of 12]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I see the problem in `analytics/metrics.py`.\n\nIn `conversion_rate`:\n```python\ndef conversion_rate(signups, visits):\n    \"\"\"Share of visits that signed up.\"\"\"\n    return signups / visits * 100\n```\nAnd in `weekly_report`:\n```python\nf\"Conversion: {format_pct(conversion_rate(stats['signups'], stats['visits']))}\"\n```\nIt seems `format_pct` probably expects a fraction (like 0.45) and multiplies it by 100 to show a percentage. If `conversion_rate` already returns `signups / visits * 100`, then `format_pct` is likely multiplying it by 100 again, resulting in `signups / visits * 10000`.\n\nLet's check `analytics/formatting.py` to see how `format_pct` is implemented.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1514975",
+     "function": {
+      "arguments": "{\"path\":\"analytics/formatting.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1514975",
+   "content": "    1  def format_pct(fraction, digits=1):\n    2      \"\"\"Format a fraction (0.123) as a percentage string ('12.3%').\"\"\"\n    3      return f\"{fraction * 100:.{digits}f}%\"\n    4  \n    5  \n    6  def format_count(n):\n    7      return f\"{n:,}\"\n    8  \n    9  \n   10  def format_duration(seconds):\n   11      minutes, secs = divmod(int(seconds), 60)\n   12      return f\"{minutes}m {secs:02d}s\"\n[analytics/formatting.py: lines 1-12 of 12]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Yes, `format_pct` multiplies by 100.\n```python\ndef format_pct(fraction, digits=1):\n    \"\"\"Format a fraction (0.123) as a percentage string ('12.3%').\"\"\"\n    return f\"{fraction * 100:.{digits}f}%\"\n```\n\nSo `conversion_rate` should return a fraction, not a percentage.\n\n```python\ndef conversion_rate(signups, visits):\n    \"\"\"Share of visits that signed up.\"\"\"\n    return signups / visits * 100\n```\nShould be:\n```python\ndef conversion_rate(signups, visits):\n    \"\"\"Share of visits that signed up.\"\"\"\n    return signups / visits\n```\n\nWait, let's check `bounce_rate` too.\n```python\ndef bounce_rate(bounces, visits):\n    \"\"\"Share of visits that left after one page, as a fraction.\"\"\"\n    return bounces / visits\n```\nThis one returns a fraction, which is correct for `format_pct`.\n\nNow about the `ZeroDivisionError`.\nIn `conversion_rate`:\n```python\ndef conversion_rate(signups, visits):\n    return signups / visits * 100\n```\nIf `visits` is 0, this will raise `ZeroDivisionError`.\n\nIn `bounce_rate`:\n```python\ndef bounce_rate(bounces, visits):\n    return bounces / visits\n```\nIf `visits` is 0, this will raise `ZeroDivisionError`.\n\nThe issue says:\n\"Also, for a week with no visits at all, `weekly_report()` crashes with `ZeroDivisionError`. It should show `0.0%` for both the conversion rate and the bounce rate.\"\n\nSo I should handle the case where `visits` is 0 in both `conversion_rate` and `bounce_rate`.\n\nLet's verify this with a reproduction script.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1958349",
+     "function": {
+      "arguments": "{\"content\":\"from analytics.report import weekly_report\\n\\ndef test_repro_conversion_rate():\\n    stats = {\\\"visits\\\": 1000, \\\"signups\\\": 450, \\\"bounces\\\": 300, \\\"session_seconds\\\": 125000, \\\"sessions\\\": 1000}\\n    report = weekly_report(stats)\\n    print(f\\\"Report with 1000 visits:\\\\n{report}\\\")\\n    assert \\\"Conversion: 45.0%\\\" in report\\n\\ndef test_repro_zero_visits():\\n    stats = {\\\"visits\\\": 0, \\\"signups\\\": 0, \\\"bounces\\\": 0, \\\"session_seconds\\\": 0, \\\"sessions\\\": 0}\\n    try:\\n        report = weekly_report(stats)\\n        print(f\\\"Report with 0 visits:\\\\n{report}\\\")\\n        assert \\\"Conversion: 0.0%\\\" in report\\n        assert \\\"Bounce rate: 0.0%\\\" in report\\n    except ZeroDivisionError:\\n        print(\\\"Caught ZeroDivisionError!\\\")\\n        raise\\n\\nif __name__ == \\\"__main__\\\":\\n    try:\\n        test_repro_conversion_rate()\\n        print(\\\"test_repro_conversion_rate passed\\\")\\n    except Exception as e:\\n        print(f\\\"test_repro_conversion_rate failed: {e}\\\")\\n\\n    try:\\n        test_repro_zero_visits()\\n        print(\\\"test_repro_zero_visits passed\\\")\\n    except Exception as e:\\n        print(f\\\"test_repro_zero_visits failed: {e}\\\")\\n\",\"path\":\"repro.py\"}",
+      "name": "create_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1958349",
+   "content": "Created repro.py (32 lines)."
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>Okay, I'll run the reproduction script.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1501575",
+     "function": {
+      "arguments": "{\"path\":\"repro.py\"}",
+      "name": "run_tests"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1501575",
+   "content": "TESTS FAILING (2 failed in 0.07s)\nFF                                                                       [100%]\n================================== FAILURES ===================================\n_________________________ test_repro_conversion_rate __________________________\nrepro.py:7: in test_repro_conversion_rate\n    assert \"Conversion: 45.0%\" in report\nE   AssertionError: assert 'Conversion: 45.0%' in 'Visits: 1,000\\nConversion: 4500.0%\\nBounce rate: 30.0%\\nAvg session: 2m 05s'\n---------------------------- Captured stdout call -----------------------------\nReport with 1000 visits:\nVisits: 1,000\nConversion: 4500.0%\nBounce rate: 30.0%\nAvg session: 2m 05s\n___________________________ test_repro_zero_visits ____________________________\nrepro.py:12: in test_repro_zero_visits\n    report = weekly_report(stats)\n             ^^^^^^^^^^^^^^^^^^^^\nanalytics\\report.py:9: in weekly_report\n    f\"Conversion: {format_pct(conversion_rate(stats['signups'], stats['visits']))}\",\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nanalytics\\metrics.py:3: in conversion_rate\n    return signups / visits * 100\n           ^^^^^^^^^^^^^^^^\nE   ZeroDivisionError: division by zero\n---------------------------- Captured stdout call -----------------------------\nCaught ZeroDivisionError!\n2 failed in 0.07s"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>The reproduction script confirmed both issues:\n1. `test_repro_conversion_rate` failed because `Conversion: 4500.0%` was found instead of `Conversion: 45.0%`.\n2. `test_repro_zero_visits` failed with `ZeroDivisionError`.\n\nI will now create a checklist of requirements.\n- [ ] Fix `conversion_rate` to return a fraction instead of a percentage.\n- [ ] Fix `conversion_rate` to return `0.0` if `visits` is 0.\n- [ ] Fix `bounce_rate` to return `0.0` if `visits` is 0.\n- [ ] Ensure other parts of the analytics package (dashboard, formatting helpers) continue to work.\n\nWait, I should check if `conversion_rate` and `bounce_rate` are used anywhere else.\nThe issue says \"Other parts of the analytics package (the dashboard, the formatting helpers) are correct today and must keep working.\"\n\nLet's see what `analytics/dashboard.py` does.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1652936",
+     "function": {
+      "arguments": "{\"path\":\"analytics/dashboard.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1652936",
+   "content": "    1  from .formatting import format_pct\n    2  from .metrics import bounce_rate\n    3  \n    4  \n    5  def bounce_tile(stats):\n    6      return {\"title\": \"Bounce rate\", \"value\": format_pct(bounce_rate(stats[\"bounces\"], stats[\"visits\"]))}\n[analytics/dashboard.py: lines 1-6 of 6]"
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>The `dashboard.py` uses `bounce_rate` and `format_pct`.\nIf I change `bounce_rate` to return a fraction (it already does), and `format_pct` expects a fraction, then `dashboard.py` should be fine.\n\nWait, `bounce_rate` already returns a fraction:\n```python\ndef bounce_rate(bounces, visits):\n    \"\"\"Share of visits that left after one page, as a fraction.\"\"\"\n    return bounces / visits\n```\n\nAnd `conversion_rate` currently returns a percentage:\n```python\ndef conversion_rate(signups, visits):\n    \"\"\"Share of visits that signed up.\"\"\"\n    return signups / visits * 100\n```\n\nIf I change `conversion_rate` to return a fraction, I need to make sure it's not used elsewhere expecting a percentage.\n\nLet's search for `conversion_rate` in the whole repository.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1238199",
+     "function": {
+      "arguments": "{\"pattern\":\"conversion_rate\"}",
+      "name": "search"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1238199",
+   "content": "repro.py:3: def test_repro_conversion_rate():\nrepro.py:22: test_repro_conversion_rate()\nrepro.py:23: print(\"test_repro_conversion_rate passed\")\nrepro.py:25: print(f\"test_repro_conversion_rate failed: {e}\")\nanalytics/metrics.py:1: def conversion_rate(signups, visits):\nanalytics/report.py:2: from .metrics import avg_session, bounce_rate, conversion_rate\nanalytics/report.py:9: f\"Conversion: {format_pct(conversion_rate(stats['signups'], stats['visits']))}\","
+  },
+  {
+   "role": "assistant",
+   "content": "<thought>The search results show `conversion_rate` is used in `analytics/report.py`.\nIt is NOT used in `analytics/dashboard.py`.\n\nLet's check `analytics/dashboard.py` again.\n```python\n    1  from .formatting import format_pct\n    2  from .metrics import bounce_rate\n    3  \n    4  \n    5  def bounce_tile(stats):\n    6      return {\"title\": \"Bounce rate\", \"value\": format_pct(bounce_rate(stats[\"bounces\"], stats[\"visits\"]))}\n```\nIt only uses `bounce_rate`.\n\nLet's check if there are any other files.\n`analytics/__init__.py` is empty.\n`analytics/loader.py` - I haven't checked it yet.\n`analytics/periods.py` - I haven't checked it yet.\n\nLet's check `analytics/loader.py` and `analytics/periods.py`.</thought>",
+   "tool_calls": [
+    {
+     "id": "call_1121053",
+     "function": {
+      "arguments": "{\"path\":\"analytics/loader.py\"}",
+      "name": "read_file"
+     },
+     "type": "function",
+     "extra_content": {
+      "google": {
+       "thought_signature": "EiYKJGUyNDgzMGE3LTVjZDYtNDJmZS05OThiLWVlNTM5ZTcyYjljMw=="
+      }
+     }
+    }
+   ],
+   "_finish_reason": "tool_calls"
+  },
+  {
+   "role": "tool",
+   "tool_call_id": "call_1121053",
+   "content": "    1  import json\n    2  \n    3  \n    4  def load_stats(path):\n    5      with open(path, encoding=\"utf-8\") as f:\n    6          raw = json.load(f)\n    7      return {k: int(v) for k, v in raw.items()}\n[analytics/loader.py: lines 1-7 of 7]"
+  }
+ ],
+ "grading": "...FF.F                                                                  [100%]\n================================== FAILURES ===================================\n______________________________ test_full_report _______________________________\ntests\\test_hidden_report.py:10: in test_full_report\n    assert weekly_report(WEEK) == \"Visits: 1,000\\nConversion: 45.0%\\nBounce rate: 30.0%\\nAvg session: 2m 05s\"\nE   AssertionError: assert 'Visits: 1,00...ssion: 2m 05s' == 'Visits: 1,00...ssion: 2m 05s'\nE     \nE       Visits: 1,000\nE     - Conversion: 45.0%\nE     + Conversion: 4500.0%\nE     ?               ++\nE       Bounce rate: 30.0%\nE       Avg session: 2m 05s\n______________________________ test_zero_visits _______________________________\ntests\\test_hidden_report.py:14: in test_zero_visits\n    text = weekly_report(EMPTY)\n           ^^^^^^^^^^^^^^^^^^^^\nanalytics\\report.py:9: in weekly_report\n    f\"Conversion: {format_pct(conversion_rate(stats['signups'], stats['visits']))}\",\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nanalytics\\metrics.py:3: in conversion_rate\n    return signups / visits * 100\n           ^^^^^^^^^^^^^^^^\nE   ZeroDivisionError: division by zero\n____________________________ test_conversion_line _____________________________\ntests\\test_report.py:7: in test_conversion_line\n    assert \"Conversion: 45.0%\" in weekly_report(WEEK)\nE   AssertionError: assert 'Conversion: 45.0%' in 'Visits: 1,000\\nConversion: 4500.0%\\nBounce rate: 30.0%\\nAvg session: 2m 05s'\nE    +  where 'Visits: 1,000\\nConversion: 4500.0%\\nBounce rate: 30.0%\\nAvg session: 2m 05s' = weekly_report({'visits': 1000, 'signups': 450, 'bounces': 300, 'session_seconds': 125000, ...})\n3 failed, 4 passed in 0.07s"
+}

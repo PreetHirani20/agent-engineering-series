@@ -1,0 +1,32 @@
+[
+ {
+  "task_id": "07-big-file-temperature",
+  "harness": "naive",
+  "error": "RuntimeError: LLM call failed after 8 attempts",
+  "peak_prompt_chars": 95175
+ },
+ {
+  "task_id": "07-big-file-temperature",
+  "harness": "engineered",
+  "error": "RuntimeError: LLM call failed after 8 attempts",
+  "peak_prompt_chars": 89353
+ },
+ {
+  "task_id": "08-log-parser",
+  "harness": "naive",
+  "error": "RuntimeError: LLM call failed after 8 attempts",
+  "peak_prompt_chars": 395829
+ },
+ {
+  "task_id": "17-report-percent",
+  "harness": "engineered",
+  "error": "RuntimeError: LLM call failed after 8 attempts",
+  "peak_prompt_chars": 17747
+ },
+ {
+  "task_id": "19-markdown-table",
+  "harness": "engineered",
+  "error": "RuntimeError: LLM call failed after 8 attempts",
+  "peak_prompt_chars": 93583
+ }
+]

@@ -1,0 +1,1 @@
+{"title": "Rename a function across six files, keep a deprecated alias", "stresses": ["loop", "memory", "tools"]}
