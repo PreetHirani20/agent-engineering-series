@@ -1,6 +1,6 @@
 # What should a long-running agent remember?
 
-The code behind the blog post **"Memory for Long-Running Agents: What to Keep and What to Forget"**.
+The code behind the blog post **[Memory for Long-Running Agents: What to Keep and What to Forget](https://medium.com/@hiranipreet20/memory-for-long-running-agents-what-to-keep-and-what-to-forget-2400ba675078)**.
 
 One model and one eight-week job, with five ways to give the agent a memory. Each strategy sees the same messages, in the same order, and gets the same tasks. Only the memory changes.
 
