@@ -12,3 +12,6 @@ Thumbs.db
 _drafts/
 run-*.log
 .lock
+
+# Cached model replies and embeddings (large; rebuilt by run.py)
+**/results/*/cache/

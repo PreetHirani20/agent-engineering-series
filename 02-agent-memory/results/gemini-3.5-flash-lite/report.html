@@ -1,0 +1,43 @@
+<!doctype html><meta charset=utf-8><title>Agent memory results</title><style>
+:root{--bg:#EEF3F1;--card:#F8FBFA;--ink:#14324A;--muted:#5B7083;--line:#CBD8D4;--teal:#0F7C7C;--sage:#8FB3A5;
+--plum:#7A3E72;--mustard:#C9A227;--slate:#9AA8B5;--violet:#5E5AA8}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+main{max-width:980px;margin:0 auto;padding:32px 16px}h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:32px 0 10px}
+.sub{color:var(--muted);margin:0 0 20px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}.bar{height:16px;border-radius:3px;background:var(--teal)}.row{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;margin:7px 0}
+.stack{display:flex;height:16px;border-radius:3px;overflow:hidden;background:#E2EAE7}.legend span{display:inline-flex;align-items:center;gap:6px;margin-right:14px;font-size:13px;color:var(--muted)}
+.legend i{width:11px;height:11px;border-radius:2px;display:inline-block}
+</style><main>
+<h1>What should a long-running agent remember?</h1><p class=sub>gemini-3.5-flash-lite · 3 seeds × 22 tasks per strategy</p>
+<div class=card><h2 style=margin-top:0>Tasks answered correctly</h2>
+<div class=row><b>keep-everything</b><div class=bar style='width:97.0%'></div><span>97%</span></div>
+<div class=row><b>recent-window</b><div class=bar style='width:16.7%'></div><span>17%</span></div>
+<div class=row><b>rolling-summary</b><div class=bar style='width:92.4%'></div><span>92%</span></div>
+<div class=row><b>vector-retrieval</b><div class=bar style='width:95.5%'></div><span>95%</span></div>
+<div class=row><b>curated-memory</b><div class=bar style='width:71.2%'></div><span>71%</span></div>
+</div><div class=card><h2 style=margin-top:0>By kind of memory task</h2><table><tr><th>Strategy</th><th>Recall</th><th>Update</th><th>Expired</th><th>Deleted</th></tr>
+<tr><td><b>keep-everything</b></td><td>100% (33/33)</td><td>100% (24/24)</td><td>83% (5/6)</td><td>67% (2/3)</td></tr>
+<tr><td><b>recent-window</b></td><td>6% (2/33)</td><td>12% (3/24)</td><td>50% (3/6)</td><td>100% (3/3)</td></tr>
+<tr><td><b>rolling-summary</b></td><td>88% (29/33)</td><td>96% (23/24)</td><td>100% (6/6)</td><td>100% (3/3)</td></tr>
+<tr><td><b>vector-retrieval</b></td><td>94% (31/33)</td><td>96% (23/24)</td><td>100% (6/6)</td><td>100% (3/3)</td></tr>
+<tr><td><b>curated-memory</b></td><td>67% (22/33)</td><td>75% (18/24)</td><td>67% (4/6)</td><td>100% (3/3)</td></tr>
+</table></div><div class=card><h2 style=margin-top:0>Why answers were wrong</h2><div class=legend><span><i style='background:var(--mustard)'></i>outdated</span><span><i style='background:var(--plum)'></i>not-forgotten</span><span><i style='background:var(--slate)'></i>missing</span><span><i style='background:var(--violet)'></i>mixed-up</span><span><i style='background:#4A5A6A'></i>wrong</span></div>
+<div class=row><b>keep-everything</b><div class=stack><div style='width:1.5%;background:var(--mustard)'></div><div style='width:1.5%;background:var(--plum)'></div><div style='width:0.0%;background:var(--slate)'></div><div style='width:0.0%;background:var(--violet)'></div><div style='width:0.0%;background:#4A5A6A'></div></div><span>2 wrong</span></div>
+<div class=row><b>recent-window</b><div class=stack><div style='width:0.0%;background:var(--mustard)'></div><div style='width:0.0%;background:var(--plum)'></div><div style='width:83.3%;background:var(--slate)'></div><div style='width:0.0%;background:var(--violet)'></div><div style='width:0.0%;background:#4A5A6A'></div></div><span>55 wrong</span></div>
+<div class=row><b>rolling-summary</b><div class=stack><div style='width:0.0%;background:var(--mustard)'></div><div style='width:0.0%;background:var(--plum)'></div><div style='width:7.6%;background:var(--slate)'></div><div style='width:0.0%;background:var(--violet)'></div><div style='width:0.0%;background:#4A5A6A'></div></div><span>5 wrong</span></div>
+<div class=row><b>vector-retrieval</b><div class=stack><div style='width:0.0%;background:var(--mustard)'></div><div style='width:0.0%;background:var(--plum)'></div><div style='width:3.0%;background:var(--slate)'></div><div style='width:0.0%;background:var(--violet)'></div><div style='width:1.5%;background:#4A5A6A'></div></div><span>3 wrong</span></div>
+<div class=row><b>curated-memory</b><div class=stack><div style='width:0.0%;background:var(--mustard)'></div><div style='width:0.0%;background:var(--plum)'></div><div style='width:27.3%;background:var(--slate)'></div><div style='width:0.0%;background:var(--violet)'></div><div style='width:1.5%;background:#4A5A6A'></div></div><span>19 wrong</span></div>
+</div><div class=card><h2 style=margin-top:0>Tokens per seed (answering + keeping memory)</h2>
+<div class=row><b>keep-everything</b><div class=bar style='width:100.0%;background:var(--violet)'></div><span>1,151K</span></div>
+<div class=row><b>recent-window</b><div class=bar style='width:17.9%;background:var(--violet)'></div><span>206K</span></div>
+<div class=row><b>rolling-summary</b><div class=bar style='width:33.9%;background:var(--violet)'></div><span>390K</span></div>
+<div class=row><b>vector-retrieval</b><div class=bar style='width:16.4%;background:var(--violet)'></div><span>189K</span></div>
+<div class=row><b>curated-memory</b><div class=bar style='width:18.5%;background:var(--violet)'></div><span>213K</span></div>
+</div><div class=card><h2 style=margin-top:0>Asked to delete a phone number: is it gone?</h2><table><tr><th>Strategy</th><th>Gone from memory</th><th>Memory size at the end</th></tr>
+<tr><td><b>keep-everything</b></td><td>0/3 seeds</td><td>50,078 tokens</td></tr>
+<tr><td><b>recent-window</b></td><td>3/3 seeds</td><td>5,775 tokens</td></tr>
+<tr><td><b>rolling-summary</b></td><td>3/3 seeds</td><td>5,426 tokens</td></tr>
+<tr><td><b>vector-retrieval</b></td><td>0/3 seeds</td><td>50,078 tokens</td></tr>
+<tr><td><b>curated-memory</b></td><td>3/3 seeds</td><td>3,248 tokens</td></tr>
+</table></div></main>
